@@ -1,0 +1,31 @@
+name: Test with comment input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: push
+      GITHUB_REF: refs/heads/main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run close-fork-pulls action with comment
+        id: action
+        uses: .
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          comment: >-
+            This pull request has been automatically closed because it was
+            submitted from a fork and is not accepted at this time.
+        continue-on-error: true
+      - name: Assert action completed with comment input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "FAIL: action failed unexpectedly when comment input was provided"
+            exit 1
+          fi
+          echo "PASS: action completed with outcome=$OUTCOME"

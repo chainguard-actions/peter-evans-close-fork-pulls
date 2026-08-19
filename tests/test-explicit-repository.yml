@@ -1,4 +1,4 @@
-name: Test with comment
+name: Test explicit repository input
 on:
   workflow_dispatch:
 jobs:
@@ -11,17 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
-        name: Run close-fork-pulls with comment
+        name: Run close-fork-pulls with explicit repository
         uses: .
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
-          comment: >-
-            This pull request has been automatically closed because it was
-            submitted from a fork. Please submit your changes directly to
-            the main repository.
         continue-on-error: true
-      - name: Assert action ran with comment input
+      - name: Assert action ran with explicit repository
         env:
           OUTCOME: ${{ steps.action.outcome }}
           CLOSED: ${{ steps.action.outputs.closed-count }}
@@ -36,10 +32,10 @@ jobs:
               echo "FAIL: closed-count is not a non-negative integer: '$CLOSED'"
               exit 1
             fi
-            echo "PASS: action succeeded with comment input, closed-count=$CLOSED"
+            echo "PASS: action succeeded with explicit repository, closed-count=$CLOSED"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "INFO: action failed (possibly due to API/permission constraints in test environment)"
-            echo "PASS: action ran with comment input (failure is acceptable in test environment)"
+            echo "PASS: action ran with explicit repository (failure is acceptable in test environment)"
           else
             echo "FAIL: unexpected outcome: $OUTCOME"
             exit 1
